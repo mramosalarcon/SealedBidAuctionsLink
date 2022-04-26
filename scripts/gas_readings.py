@@ -36,7 +36,7 @@ def main():
     tx = auction.winnerRetrivesToken({"from": accounts[2]})
     tx.wait(1)
     # Loser reinburses
-    tx = auction.reiburseParticipant({"from": accounts[1]})
+    tx = auction.reimburseParticipant({"from": accounts[1]})
     tx.wait(1)
     # auctioneer gets payed
     tx = auction.ownerGetsPayed({"from": accounts[0]})

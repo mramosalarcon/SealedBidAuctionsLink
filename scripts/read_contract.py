@@ -18,7 +18,7 @@ def main():
     tx = contract.winnerRetrivesToken({"from": accounts[2]})
     tx.wait(0)
     # Loser reinburses
-    tx = contract.reiburseParticipant({"from": accounts[1]})
+    tx = contract.reimburseParticipant({"from": accounts[1]})
     tx.wait(0)
     # auctioneer gets payed
     tx = contract.ownerGetsPayed({"from": accounts[0]})
