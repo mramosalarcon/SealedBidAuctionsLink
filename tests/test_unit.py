@@ -282,15 +282,15 @@ def test_reimbursements_no_reveal():
     auction, accounts, prices = test_auctioneer_gets_payed_no_reveal()
     auction_initial_balance = auction.balance()
     accounts_initial_balances = [accounts[0].balance(), accounts[1].balance(), accounts[2].balance()]
-    tx = auction.reiburseParticipant({"from": accounts[0]})
+    tx = auction.reimburseParticipant({"from": accounts[0]})
     tx.wait(1)
-    tx = auction.reiburseParticipant({"from": accounts[2]})
+    tx = auction.reimburseParticipant({"from": accounts[2]})
     tx.wait(1)
     assert(accounts_initial_balances[0] + prices[0] == accounts[0].balance())
     assert(accounts_initial_balances[2] + prices[2] == accounts[2].balance())
     assert(auction_initial_balance - prices[0] - prices[2] == auction.balance())
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.reiburseParticipant({'from':accounts[1]})
+        tx = auction.reimburseParticipant({'from':accounts[1]})
         tx.wait(1)
     return auction, accounts
 
@@ -298,25 +298,25 @@ def test_reimbursements():
     auction, accounts, prices = test_auctioneer_gets_payed()
     auction_initial_balance = auction.balance()
     accounts_initial_balances = [accounts[0].balance(), accounts[1].balance(), accounts[2].balance()]
-    tx = auction.reiburseParticipant({"from": accounts[0]})
+    tx = auction.reimburseParticipant({"from": accounts[0]})
     tx.wait(1)
-    tx = auction.reiburseParticipant({"from": accounts[2]})
+    tx = auction.reimburseParticipant({"from": accounts[2]})
     tx.wait(1)
     assert(accounts_initial_balances[0] + prices[0] == accounts[0].balance())
     assert(accounts_initial_balances[2] + prices[2] == accounts[2].balance())
     assert(auction_initial_balance - prices[0] - prices[2] == auction.balance())
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.reiburseParticipant({'from':accounts[1]})
+        tx = auction.reimburseParticipant({'from':accounts[1]})
         tx.wait(1)
     return auction, accounts
 
 def test_double_reinbursements():
     auction, accounts = test_reimbursements()
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.reiburseParticipant({"from": accounts[0]})
+        tx = auction.reimburseParticipant({"from": accounts[0]})
         tx.wait(1)
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.reiburseParticipant({"from": accounts[2]})
+        tx = auction.reimburseParticipant({"from": accounts[2]})
         tx.wait(1)
 
 
@@ -340,13 +340,13 @@ def test_winner_gives_more_than_offered():
     contract_balance = auction.balance()
     participant_balance = accounts[0].balance()
     assert(auction.accountToAmount(accounts[0]) == Web3.toWei(0.4, 'ether'))
-    tx = auction.reiburseParticipant({"from": accounts[0]})
+    tx = auction.reimburseParticipant({"from": accounts[0]})
     tx.wait(1)
     assert(contract_balance - auction.accountToOffer(accounts[0]) == Web3.toWei(0.4, 'ether'))
     assert(participant_balance + Web3.toWei(0.4, 'ether') == accounts[0].balance())
     assert(auction.accountToAmount(accounts[0]) == 0)
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.reiburseParticipant({'from':accounts[0]})
+        tx = auction.reimburseParticipant({'from':accounts[0]})
         tx.wait(1)
 
 def test_winner_retrives_token():

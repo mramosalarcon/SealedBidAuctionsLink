@@ -37,7 +37,7 @@ def test_integration():
     tx = auction.winnerRetrivesToken({"from": accounts[2]})
     tx.wait(0)
     # Loser reinburses
-    tx = auction.reiburseParticipant({"from": accounts[1]})
+    tx = auction.reimburseParticipant({"from": accounts[1]})
     tx.wait(0)
     # auctioneer gets payed
     tx = auction.ownerGetsPayed({"from": accounts[0]})
@@ -78,7 +78,7 @@ def test_integration_local():
     tx = auction.winnerRetrivesToken({"from": accounts[2]})
     tx.wait(0)
     # Loser reinburses
-    tx = auction.reiburseParticipant({"from": accounts[1]})
+    tx = auction.reimburseParticipant({"from": accounts[1]})
     tx.wait(0)
     # auctioneer gets payed
     tx = auction.ownerGetsPayed({"from": accounts[0]})

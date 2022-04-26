@@ -132,7 +132,7 @@ contract SealedBidAuction is Ownable, IERC721Receiver {
         }
     }
 
-    function reiburseParticipant() public{
+    function reimburseParticipant() public{
         // Tenga saldo positivo
         uint256 reimbursement = accountToAmount[_msgSender()];
         require(reimbursement > 0);
