@@ -134,6 +134,7 @@ contract SealedBidAuction is Ownable, IERC721Receiver {
 
     function reimburseParticipant() public{
         // Tenga saldo positivo
+        require(auction_state == AUCTION_STATE.AUCTION_ENDED);
         uint256 reimbursement = accountToAmount[_msgSender()];
         require(reimbursement > 0);
         accountToAmount[_msgSender()] = 0; // no reent
@@ -141,6 +142,7 @@ contract SealedBidAuction is Ownable, IERC721Receiver {
     }
 
     function winnerRetrivesToken() public{
+        require(auction_state == AUCTION_STATE.AUCTION_ENDED);
         require(_msgSender() == winner);
         parentNFT.safeTransferFrom(address(this), _msgSender(), tokenId);
     }
