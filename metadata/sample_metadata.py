@@ -1,11 +1,9 @@
 metadata_template = {
-    "name": "Colmillo",
-    "description": "Mascota del ITAM",
-    "imageURI": "https://ipfs.io/ipfs/QmPi7TDWPUNNcQJfhSgKb79zcmYPM1ag8MkhyRR8JMA83d",
-    "attributes": [
-        {
-            "trait_type": "Guapura",
-            "value": 100
-        }
-    ]
+    "name": "Test NFT",
+    "description": "NFT for auction testing",
+    "image": "https://ipfs.io/ipfs/QmdS7gZXQHoePE9rE7rin5Ph6aGEhChUYMnbQyUBS65EwK",
+    "attributes": [{
+        "trait_type": "Coolness",
+        "value": 100
+    }]
 }
