@@ -1,10 +1,21 @@
-from brownie import SealedBidAuction, accounts, config, network, exceptions
+from brownie import SealedBidAuction, config, network
 from web3 import Web3
-from scripts.helpful_scripts import  get_account, hashStrings, time_now
-from scripts.manage_nft import deploy_and_create_nft, create_nft
+from scripts.helpful_scripts import  get_account, hashStrings
+from scripts.manage_nft import deploy_and_create_nf
 
 
+'''Auction deployment funciton. First cereates an ERC721 contract, 
+    mints a token and then proceeds to create an auction for that token. 
 
+   Args: 
+    min_price (uint): minimum price of the aution
+    secret (string): The secret word to hash with the price.
+    time (unix timestamp secodns, uint): Time when offers must close.
+    time2 (unix timestamp secodns, uint): Time when reveals must close.
+        
+    Returns:
+
+'''
 def deploy_auction(min_price = Web3.toWei(0.1, 'ether') , secret = "thisIsASecret", time = None, time2 = None):
     account = get_account(index=0)
     initialHash = hashStrings(secret, min_price)

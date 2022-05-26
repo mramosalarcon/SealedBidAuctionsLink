@@ -8,6 +8,10 @@ import pytest
 MIN_PRICE = Web3.toWei(0.1, 'ether')
 SECRET = "thisIsASecret"
 
+'''Script used to read the last deployed contrct, used mostly for debugging. 
+    The current version is the last one used. 
+
+'''
 def main():
     accounts = [get_account(number=0),get_account(number=1),get_account(number=2)]
     secrets = ["S1", "S2", "S3"]

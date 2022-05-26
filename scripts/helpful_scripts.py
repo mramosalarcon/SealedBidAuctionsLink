@@ -7,7 +7,16 @@ import time
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ['development', 'ganace-local', 'mainnet-fork']
 TESTNETS = ['rinkeby']
 
+'''Retrives an account. 
 
+   Args:    
+        index (int): index returns a local ganache account
+        id (int): return one of the accounts saved for rinkeby use. Keys must be in .env file
+        
+    Returns:
+        account xor none if something went wrong. 
+
+'''
 def get_account(index = None, id = None, number=None):
     # accounts[0]
     # accounts.add("env")
@@ -29,11 +38,27 @@ def get_account(index = None, id = None, number=None):
     else:
         return None
 
+'''hashes 2 strings concatenating them and encoding them as solidity woould do it. 
+    The first string must be the secret and the second the offer amount
+
+   Args:
+        s1 (string): secret word
+        s2 (string): amount offered in wei.
+        
+    Returns:
+        hashed string
+
+'''
 def hashStrings(s1, s2):
     ans = Web3.solidityKeccak(['bytes32','uint256'],[bytes(s1,'utf-8'), int(s2)])
     return ans
 
+'''Function to get the actual UNIX time
+        
+    Returns:
+        unix timestamp in seconds (int) of right now. 
 
+'''
 def time_now():
     return math.floor(time.time())
 
