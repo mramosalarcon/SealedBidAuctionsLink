@@ -1,6 +1,5 @@
-from brownie import network, config, accounts, Contract, SealedBidAuction
+from brownie import network, config, accounts
 from web3 import Web3
-from Crypto.Hash import keccak
 import math
 import time
 

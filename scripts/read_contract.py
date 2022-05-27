@@ -1,15 +1,13 @@
-from brownie import SealedBidAuction, config, network, exceptions
+from brownie import SealedBidAuction
 from web3 import Web3
-from scripts.helpful_scripts import TESTNETS, get_account, hashStrings
-from scripts.deploy_auction import deploy_auction
+from scripts.helpful_scripts import get_account
+from scripts.deploy_auction import 
 from scripts.manage_nft import last_nft
-import pytest
-
 MIN_PRICE = Web3.toWei(0.1, 'ether')
 SECRET = "thisIsASecret"
 
 '''Script used to read the last deployed contrct, used mostly for debugging. 
-    The current version is the last one used. 
+    The current version is the last one used, that does not mean it works.
 
 '''
 def main():

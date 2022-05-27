@@ -1,7 +1,7 @@
 from brownie import SealedBidAuction, config, network
 from web3 import Web3
 from scripts.helpful_scripts import  get_account, hashStrings
-from scripts.manage_nft import deploy_and_create_nf
+from scripts.manage_nft import deploy_and_create_nft
 
 
 '''Auction deployment funciton. First cereates an ERC721 contract, 

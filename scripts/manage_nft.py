@@ -1,9 +1,8 @@
-from brownie import CollectibleCreator, accounts, config, network, exceptions
-from web3 import Web3
-from scripts.helpful_scripts import  get_account, hashStrings
+from brownie import CollectibleCreator, config, network
+from scripts.helpful_scripts import  get_account
 
 OPENSEA_URL =' https://testnets.opensea.io/assets/{}/{}'
-METADATA = "https://ipfs.io/ipfs/QmR6xprTY253fDPM423C5t3EjdTVXuqPDXjPJhpp7v7gQc"
+METADATA = "https://ipfs.io/ipfs/QmYHT7H8GdCaPzViFfAwGoK3spbq8bEkqAB9kMzNhhLeUe"
 
 
 '''Deploys an ERC721 contract and mints an nft which is deposited into the first
