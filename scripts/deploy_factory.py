@@ -1,9 +1,10 @@
 from brownie import AuctionFactory, SealedBidAuction, Contract, config, network
 from web3 import Web3
-from scripts.helpful_scripts import  get_account, hashStrings
-from scripts.manage_nft import deploy_and_create_nft
+from scripts.helpful_scripts import  get_account, hashStrings,time_now
+from scripts.manage_nft import deploy_and_create_nft, create_nft
+import time
 
-
+N = 10
 
 '''Deploys a contract factory for auctoins. 
         
@@ -43,18 +44,46 @@ def deploy_auction_from_factory(min_price = Web3.toWei(0.1, 'ether') , secret = 
     if not time1:
         time1 = 0
         time2 = 0
-    tx = factory.createSealedBidAuctionContract(initialHash, collectible, collectible_id, time1, time2, {"from": account})
+    collectible, collectible_id = create_nft()
+    tx = factory.createSealedBidAuctionContract(initialHash, collectible, collectible_id, time1 , time2, {"from": account})
     tx.wait(1)
-    auctoin_index = tx.return_value
-    auction_address = factory.sealedBidAuctionArray(auctoin_index)
+    auction_address = factory.sealedBidAuctionArrayContracts(0)
     #print(auction_address)
     auction = Contract.from_abi( SealedBidAuction._name, auction_address, SealedBidAuction.abi)
-    #print(auction.parentNFT())
-    #print(auction.tokenId())
+    tx = collectible.approve(auction, collectible_id, {"from": account})
+    tx.wait(1)
+    tx = auction.transferAssetToContract({"from": account})
+    tx.wait(1)
     return auction, initialHash
+
+'''Deploys N auctions, then preforms upkeep and prints if upkeep should have been preformed. 
+
+    Args:
+        min_price (uint): minimum price of the aution
+        secret (string): The secret word to hash with the price.
+        time1 (unix timestamp secodns, uint): Time when offers must close.
+        time2 (unix timestamp secodns, uint): Time when reveals must close.
+        
+    Returns:
+        The emits of each iteration. 
+
+'''
+def deploy_n_auctions_from_factory(min_price = Web3.toWei(0.1, 'ether') , secret = "thisIsASecret", time1=None, time2=None):
+    deploy_factory()
+    deploy_auction_from_factory(time1=time_now(), time2=time_now())
+    #time.sleep(5)
+    #for j in range(10):
+    #    print(factory.checkKeep("a"))
+    #    if(factory.checkKeep("a")):
+    #        tx = factory.performUpkeep("a")
+    #        tx.wait(1)
+            #print(tx.info())
+    #    time.sleep(5)
+    
 
 
 def main():
-    deploy_factory()
+    #deploy_factory()
+    deploy_n_auctions_from_factory()
     #deploy_factory_and_create_acution()
     #deploy_auction_from_factory()

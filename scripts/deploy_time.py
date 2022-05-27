@@ -77,11 +77,6 @@ def print_data(time_contract):
 def main():
     #time_contract = get_last_deployed_time()
     time_contract = deploy_and_add_addresses()
-    print_data(time_contract)
-    delete_feed()
-    print_data(time_contract)
-    add_one_feed()
-    print_data(time_contract)
 
 '''Lets you add a priceFeed to the time oracle contract
 

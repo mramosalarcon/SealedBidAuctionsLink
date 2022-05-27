@@ -10,10 +10,16 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * Sealed Bid auction protocol. 
 */
 
-contract SealedBidAuction is Ownable, ReentrancyGuard {
+contract SealedBidAuction is Ownable, ReentrancyGuard{
 
     // Participant wallets array.
     address[] public players;
+
+    // Adress of the Factory contract
+    address public factory;
+
+    // Commision (% multiplied by 10)
+    uint256 public commision =20;
 
     // Wallet to amount transfered mapping.
     mapping(address => uint256) public accountToAmount;
@@ -126,6 +132,7 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
         tokenId = _tokenId;
         revealTime = _revealTime;
         winnerTime = _winnerTime;
+        factory = owner();
     }
 
     /**
@@ -136,8 +143,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {ERC721Transfer} event. 
     */
-
-
     function transferAssetToContract() public onlyOwner{
         require(auction_state == AUCTION_STATE.CONTRACT_CREATION);
         parentNFT.transferFrom(_msgSender(), address(this), tokenId);
@@ -155,8 +160,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {OfferMade} event. 
     */
-
-    
     function makeOffer(bytes32 _hash) public virtual payable{
         require(auction_state == AUCTION_STATE.RECIVEING_OFFERS, 'Wrong auction state');
         require(_msgSender() != owner(), "Owner cant bid");
@@ -169,20 +172,27 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Changes state of auction to offer reveals
+     * @dev Changes state of auction to the next when the time is right, function 
+     *  used by keepers
      * 
      * Requirements:
      *  -Time origin must be larger than contract set time
-     *  -Auction state must be in RECIVEING_OFFERS
-     *  -Must transfer a non zero amount of eth
+     *  -Auction state must be in RECIVEING_OFFERS or OFFER_REVEAL
      *
-     * Emits a {OffersClosed} event. 
+     * Emits a {OffersClosed} xor {WinnerChosen} event. 
     */
-    function closeOffers() public{
-        require(block.timestamp >= revealTime, 'Wait until set time');
-        require(auction_state == AUCTION_STATE.RECIVEING_OFFERS, 'Wrong auction state');
-        auction_state = AUCTION_STATE.OFFER_REVEAL;
-        emit OffersClosed();
+    function nextPhase() public{
+        if(auction_state == AUCTION_STATE.RECIVEING_OFFERS){
+            require(block.timestamp >= revealTime, 'Wait until set time');
+            auction_state = AUCTION_STATE.OFFER_REVEAL;
+            emit OffersClosed();
+        }
+        else if(auction_state == AUCTION_STATE.OFFER_REVEAL){
+            require(block.timestamp >= winnerTime + timeOffset, 'Wait until set time + offset');
+            require(_msgSender() != owner(), "Owner must use winnerCalculation()");
+            auction_state = AUCTION_STATE.CALCULATING_WINNER;
+            _closeReveals();
+        }
     }
 
     /**
@@ -199,7 +209,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {OfferRevealed} event. 
     */
-
     function revealOffer(string memory _secret, uint256 _amount) public virtual{
     require(auction_state == AUCTION_STATE.OFFER_REVEAL, "Not right time");
     require(accountToAmount[_msgSender()] != 0, "You are not a participant"); 
@@ -218,26 +227,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Changes auction state to CALCULATING_WINNER
-     * 
-     * Requirements:
-     *  -   caller must not be owner
-     *  -   time origin must be larger than preset closeReveals time
-     *  -   Auction state must be in OFFER_REVEAL
-     *
-     *
-     * Calls _closeReveals() Internal funciton. 
-    */
-
-    function closeReveals() public{
-        require(block.timestamp >= winnerTime + timeOffset, 'Wait until set time + offset'); //5s despues que vence tiempo de owner
-        require(_msgSender() != owner(), "Owner must use winnerCalculation()");
-        require(auction_state == AUCTION_STATE.OFFER_REVEAL, 'wrong auction state');
-        auction_state = AUCTION_STATE.CALCULATING_WINNER;
-        _closeReveals();
-    }
-
-    /**
      * @dev Owner reveals minimum price and calculates winner
      * 
      * Requirements:
@@ -249,8 +238,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {MinimumPriceRevealed} event. 
     */
-
-    // TODO un cambio de nombre no vendria mal, creo. Poco intuitivo.?
     function winnerCalculation(string memory _secret, uint256 _amount) public onlyOwner {
         require(auction_state == AUCTION_STATE.OFFER_REVEAL, 'Wrong auction state');
         require(block.timestamp >= winnerTime, 'Wait until set time');
@@ -274,7 +261,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {WinnerChosen} event. 
     */
-
     function _closeReveals() internal{
         uint256 indexOfWinner;
         uint256 loopAmount;
@@ -300,7 +286,8 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Auction owner retrives sale price or nft if it did not sell
+     * @dev Auction owner retrives sale price or nft if it did not sell. If sold then factoy receives a hardoded 2%
+     *   commision of the sale. 
      * 
      * Requirements:
      *  -   caller must be owner
@@ -309,12 +296,13 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {OwnerPayed} xor {TokenWithdrawal} event. 
     */
-
     function ownerGetsPayed() public onlyOwner nonReentrant{
         require(auction_state == AUCTION_STATE.AUCTION_ENDED);
         if(amount > 0){
-            uint256 toPay = amount;
+            uint256 toFactory = (amount*commision)/1000;
+            uint256 toPay = amount - toFactory;
             amount = 0;
+            payable(factory).transfer(toFactory);
             payable(owner()).transfer(toPay);
             emit OwnerPayed(toPay);
         }else{
@@ -333,7 +321,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {ParticipantReimbursed} event. 
     */
-
     function reimburseParticipant() nonReentrant public{
         require(auction_state == AUCTION_STATE.AUCTION_ENDED);
         uint256 reimbursement = accountToAmount[_msgSender()];
@@ -353,7 +340,6 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {TokenWithdrawal} event. 
     */
-
     function winnerRetrivesToken() nonReentrant public{
         require(auction_state == AUCTION_STATE.AUCTION_ENDED);
         require(_msgSender() == winner);
