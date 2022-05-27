@@ -286,11 +286,14 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
                     loopAmount = accountToOffer[players[i]];
                 }
             }
-            if(loopAmount >= minimumPrice){
-                winner = players[indexOfWinner];
-                amount = accountToOffer[winner];
-                accountToAmount[winner] = accountToAmount[winner] - accountToOffer[winner];
-            } 
+            if(loopAmount > 0){
+                if(loopAmount >= minimumPrice){
+                    winner = players[indexOfWinner];
+                    amount = accountToOffer[winner];
+                    accountToAmount[winner] = accountToAmount[winner] - accountToOffer[winner];
+                } 
+            }
+            
         }
         auction_state = AUCTION_STATE.AUCTION_ENDED;
         emit WinnerChosen(winner, amount);
