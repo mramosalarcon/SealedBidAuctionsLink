@@ -38,8 +38,8 @@ contract AuctionFactory is KeeperCompatibleInterface, Ownable, ReentrancyGuard {
     SealedBidAuction[] public sealedBidAuctionArrayContracts;
 
     // Time offset between time close reveals time and next phase, gives auction owner time to 
-    // reveal the minimum price. Set to 5 seconds for testing purposes. 
-    uint256 public timeOffset = 5 seconds;
+    // reveal the minimum price. Set to 2 minutes for testing purposes. 
+    uint256 public timeOffset = 2 minutes;
 
     /**
      * @dev Creates auction and gives ownership of it to creator.

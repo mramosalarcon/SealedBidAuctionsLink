@@ -25,7 +25,7 @@ def test_integration():
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
     # End offers Time 
-    auction.closeOffers({"from": accounts[0]})
+    auction.nextPhase({"from": accounts[0]})
     # Reveal offers 
     tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
     tx.wait(1)
@@ -66,7 +66,7 @@ def test_integration_local():
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
     # End offers Time 
-    auction.closeOffers({"from": accounts[0]})
+    auction.nextPhase({"from": accounts[0]})
     # Reveal offers 
     tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
     tx.wait(1)
@@ -109,7 +109,7 @@ def test_integration_local_times_owner_change():
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
     # End offers Time 
-    auction.closeOffers({"from": accounts[0]})
+    auction.nextPhase({"from": accounts[0]})
     # Reveal offers 
     tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
     tx.wait(1)
@@ -156,7 +156,7 @@ def test_integration_local_times_other_change():
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
     # End offers Time 
-    auction.closeOffers({"from": accounts[0]})
+    auction.nextPhase({"from": accounts[0]})
     # Reveal offers 
     tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
     tx.wait(1)
@@ -164,10 +164,10 @@ def test_integration_local_times_other_change():
     tx.wait(1)
     #Calculate Winner
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeReveals({"from": accounts[2]})
+        tx = auction.nextPhase({"from": accounts[2]})
         tx.wait(1)
     time.sleep(14)
-    tx = auction.closeReveals({"from": accounts[2]})
+    tx = auction.nextPhase({"from": accounts[2]})
     tx.wait(1)
     # Winner claims asset
     tx = auction.winnerRetrivesToken({"from": accounts[2]})

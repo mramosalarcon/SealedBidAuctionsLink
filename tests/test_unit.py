@@ -3,6 +3,7 @@ from web3 import Web3
 from scripts.helpful_scripts import LOCAL_BLOCKCHAIN_ENVIRONMENTS, get_account, hashStrings, time_now
 from scripts.deploy_auction import deploy_auction
 from scripts.manage_nft import last_nft
+from scripts.deploy_factory import deploy_factory, deploy_auction_from_factory
 import pytest
 import time
 
@@ -105,7 +106,7 @@ def test_close_bids_by_owner():
         pytest.skip()
     account = get_account()
     auction, hash = deploy_auction()
-    tx = auction.closeOffers({'from':account})
+    tx = auction.nextPhase({'from':account})
     tx.wait(1)
     assert(auction.auction_state() == 2)
 
@@ -148,7 +149,7 @@ def test_reveal_offer_not_participant():
         pytest.skip()
     account = get_account(index=1)
     auction, hash = deploy_auction()
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     with pytest.raises(exceptions.VirtualMachineError):
         tx = auction.revealOffer(bytes("secret",'utf-8'), Web3.toWei(0.16, 'ether'), {'from':account})
         tx.wait(1)
@@ -168,7 +169,7 @@ def test_encoding_matches():
     tx = auction.makeOffer(hashStrings(secret, price), {'from': account, 'value': price})
     tx.wait(1)
     print(auction.accountToHash(account))
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secret, price, {'from':account})
     tx.wait(1)
@@ -187,7 +188,7 @@ def test_cant_reveal_twice():
     secret = 'Secret1'
     tx = auction.makeOffer(hashStrings(secret, price), {'from': account, 'value': price})
     tx.wait(1)
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secret, price, {'from':account})
     tx.wait(1)
@@ -212,7 +213,7 @@ def test_no_winner():
     tx.wait(1)
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':accounts[0]})
     tx.wait(1)
@@ -222,7 +223,7 @@ def test_no_winner():
     tx.wait(1)
     tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':get_account()})
     tx.wait(1)
-    #tx = auction.closeReveals({'from':get_account()})
+    #tx = auction.nextPhase({'from':get_account()})
     #tx.wait(1)
     assert(auction.winner() == "0x0000000000000000000000000000000000000000")
     assert(auction.amount() == 0)
@@ -270,7 +271,7 @@ def test_chooses_winner_correctly():
     tx.wait(1)
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':accounts[0]})
     tx.wait(1)
@@ -280,10 +281,35 @@ def test_chooses_winner_correctly():
     tx.wait(1)
     tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':get_account()})
     tx.wait(1)
-    #tx = auction.closeReveals({'from':get_account()})
+    #tx = auction.nextPhase({'from':get_account()})
     #tx.wait(1)
     assert(auction.winner() == accounts[1])
     assert(auction.amount() == prices[1])
+    assert(auction.auction_state() == 4)
+    return auction, accounts, prices
+
+'''
+If there is only one bidder and he does not reveal then there is no winner check.
+'''
+
+def test_chooses_winner_correctly_no_reveals():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+    accounts = [get_account(index=1), get_account(index=2), get_account(index=3)]
+    auction, hash = deploy_auction()
+    secrets = ["S1", "S2", "S3"]
+    prices = [Web3.toWei(0.16, 'ether'),Web3.toWei(0.50, 'ether'),Web3.toWei(0.21, 'ether')]
+    tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': accounts[0], 'value': prices[0]})
+    tx.wait(1)
+    tx = auction.makeOffer(hashStrings(secrets[1], prices[1]), {'from': accounts[1], 'value': prices[1]})
+    tx.wait(1)
+    tx = auction.nextPhase({'from':get_account()})
+    tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':get_account()})
+    tx.wait(1)
+    #tx = auction.nextPhase({'from':get_account()})
+    #tx.wait(1)
+    assert(auction.winner() == ZERO_ADDRESS)
+    assert(auction.amount() == 0)
     assert(auction.auction_state() == 4)
     return auction, accounts, prices
 
@@ -306,7 +332,7 @@ def test_participant_no_reveal():
     tx.wait(1)
     tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
     tx.wait(1)
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
     tx.wait(1)
@@ -314,7 +340,7 @@ def test_participant_no_reveal():
     tx.wait(1)
     tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':get_account()})
     tx.wait(1)
-    #tx = auction.closeReveals({'from':get_account()})
+    #tx = auction.nextPhase({'from':get_account()})
     #tx.wait(1)
     assert(auction.winner() == accounts[1])
     assert(auction.amount() == prices[1])
@@ -423,13 +449,13 @@ def test_winner_gives_more_than_offered():
     prices = [Web3.toWei(0.1, 'ether'), Web3.toWei(0.1, 'ether')]
     tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': accounts[0], 'value':  Web3.toWei(0.5, 'ether')})
     tx.wait(1)
-    tx = auction.closeOffers({'from':get_account()})
+    tx = auction.nextPhase({'from':get_account()})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':accounts[0]})
     tx.wait(1)
     tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':get_account()})
     tx.wait(1)
-    #tx = auction.closeReveals({'from':get_account()})
+    #tx = auction.nextPhase({'from':get_account()})
     #tx.wait(1)
     contract_balance = auction.balance()
     participant_balance = accounts[0].balance()
@@ -503,7 +529,7 @@ def test_cant_close_offers_on_wrong_time_owner():
     collectible, collectible_id = last_nft()
     #Assert
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeOffers({"from": account})
+        tx = auction.nextPhase({"from": account})
         tx.wait(1)
     return account, auction
 
@@ -520,7 +546,7 @@ def test_cant_close_offers_on_wrong_time():
     auction, hash = deploy_auction(MIN_PRICE, SECRET, time1, time2)
     #Assert
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeOffers({"from": account2})
+        tx = auction.nextPhase({"from": account2})
         tx.wait(1)
     return account2, auction
 
@@ -539,7 +565,7 @@ def test_close_offers_right_time():
     #Act
     time.sleep(5)
     #Assert
-    tx = auction.closeOffers({"from": account})
+    tx = auction.nextPhase({"from": account})
     tx.wait(1)
     assert(auction.auction_state() == 2)
     return account, auction
@@ -559,7 +585,7 @@ def test_close_offers_right_time_owner():
     #Act
     time.sleep(5)
     #Assert
-    tx = auction.closeOffers({"from": account})
+    tx = auction.nextPhase({"from": account})
     tx.wait(1)
     assert(auction.auction_state() == 2)
     return account, auction
@@ -577,7 +603,7 @@ def test_close_reveals_wrong_time():
         pytest.skip()
     account, auction = test_close_offers_right_time()
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeReveals({"from": account})
+        tx = auction.nextPhase({"from": account})
         tx.wait(1)
 
 '''
@@ -617,7 +643,7 @@ def test_close_reveals_wrong_method_owner():
     #Act
     time.sleep(5)
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeReveals({"from": account})
+        tx = auction.nextPhase({"from": account})
         tx.wait(1)
 
 '''
@@ -628,7 +654,7 @@ def test_close_reveals_right_time_and_method():
         pytest.skip()
     account, auction = test_close_offers_right_time()
     time.sleep(10)
-    tx = auction.closeReveals({"from": account})
+    tx = auction.nextPhase({"from": account})
     tx.wait(1)
     assert(auction.auction_state() == 4)
 
@@ -642,7 +668,7 @@ def test_close_reveals_right_time_and_method_with_diffrence():
     account, auction = test_close_offers_right_time()
     time.sleep(1)
     with pytest.raises(exceptions.VirtualMachineError):
-        tx = auction.closeReveals({"from": account})
+        tx = auction.nextPhase({"from": account})
         tx.wait(1)
 
 '''
@@ -687,7 +713,7 @@ def test_winner_with_colse_by_owner():
     prices = [Web3.toWei(0.1, 'ether'), Web3.toWei(0.1, 'ether')]
     tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': account2, 'value':  Web3.toWei(0.1, 'ether')})
     tx.wait(1)
-    tx = auction.closeOffers({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':account2})
     tx.wait(1)
@@ -715,12 +741,12 @@ def test_winner_with_colse_by_x():
     prices = [Web3.toWei(0.1, 'ether'), Web3.toWei(0.1, 'ether')]
     tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': account2, 'value':  Web3.toWei(0.1, 'ether')})
     tx.wait(1)
-    tx = auction.closeOffers({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':account2})
     tx.wait(1)
     time.sleep(15)
-    tx = auction.closeReveals({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     assert(auction.winner() == account2)
     assert(auction.amount() == MIN_PRICE)
@@ -744,7 +770,7 @@ def test_winner_with_colse_by_owner_bad_min_price():
     prices = [Web3.toWei(0.09, 'ether'), Web3.toWei(0.09, 'ether')]
     tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': account2, 'value':  Web3.toWei(0.3, 'ether')})
     tx.wait(1)
-    tx = auction.closeOffers({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':account2})
     tx.wait(1)
@@ -771,14 +797,76 @@ def test_winner_with_colse_by_x_bad_min_price():
     prices = [Web3.toWei(0.09, 'ether'), Web3.toWei(0.09, 'ether')]
     tx = auction.makeOffer(hashStrings(secrets[0], prices[0]), {'from': account2, 'value':  Web3.toWei(0.2, 'ether')})
     tx.wait(1)
-    tx = auction.closeOffers({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     tx = auction.revealOffer(secrets[0], prices[0], {'from':account2})
     tx.wait(1)
     time.sleep(15)
-    tx = auction.closeReveals({"from": account2})
+    tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     assert(auction.winner() == account2)
     assert(auction.amount() == prices[0])
     assert(auction.minimumPrice() == 0)
 
+'''
+Verifies that factory address is setup when deploying from there, if auction not deployed 
+from factory then address is set to the deployer.
+'''
+def test_factory_variable_is_setup():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+    factory = deploy_factory()
+    auction, initialHash = deploy_auction_from_factory()
+    assert(auction.factory() == factory.address)
+
+'''
+Revises that the factory gets a commision once an auction is over
+'''
+def test_factory_gets_comission():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+    factory = deploy_factory()
+    auction, initialHash = deploy_auction_from_factory()
+    accounts = [get_account(),get_account(index=1),get_account(index=2)]
+    secrets = ["S1", "S2", "S3"]
+    prices = [Web3.toWei(0.01, 'ether'), Web3.toWei(0.11, 'ether'), Web3.toWei(0.12, 'ether')]
+    initial_balances = [accounts[0].balance(), accounts[1].balance(), accounts[2].balance()]
+    # Make ofers
+    tx = auction.makeOffer(hashStrings(secrets[1], prices[1]), {'from': accounts[1], 'value': prices[1]})
+    tx.wait(1)
+    tx = auction.makeOffer(hashStrings(secrets[2], prices[2]), {'from': accounts[2], 'value': prices[2]})
+    tx.wait(1)
+    # End offers Time 
+    auction.nextPhase({"from": accounts[0]})
+    # Reveal offers 
+    tx = auction.revealOffer(secrets[1], prices[1], {'from':accounts[1]})
+    tx.wait(1)
+    tx = auction.revealOffer(secrets[2], prices[2], {'from':accounts[2]})
+    tx.wait(1)
+    #Calculate Winner
+    print(auction.factory())
+    tx = auction.winnerCalculation(SECRET, MIN_PRICE, {'from':accounts[0]})
+    tx.wait(1)
+    # auctioneer gets payed
+    tx = auction.ownerGetsPayed({"from": accounts[0]})
+    tx.wait(0)
+    assert(factory.balance() > 0)
+    assert(initial_balances[0] + Web3.toWei(0.12, 'ether') > accounts[0].balance())
+    return factory
+
+'''
+Makes sure the factory owner can withdray funds from the factory. 
+'''
+def test_factory_owner_can_retrive_funds():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+    factory = test_factory_gets_comission()
+    account = get_account()
+    account_balance = account.balance()
+    assert(factory.balance() > 0)
+    tx = factory.transferFunds(account.address, {'from': account})
+    tx.wait(1)
+    assert(account_balance < account.balance())
+    assert(factory.balance() == 0)
+
+    

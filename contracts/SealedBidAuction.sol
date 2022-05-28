@@ -19,7 +19,7 @@ contract SealedBidAuction is Ownable, ReentrancyGuard{
     address public factory;
 
     // Commision (% multiplied by 10)
-    uint256 public commision =20;
+    uint256 public commision = 20;
 
     // Wallet to amount transfered mapping.
     mapping(address => uint256) public accountToAmount;
@@ -56,7 +56,7 @@ contract SealedBidAuction is Ownable, ReentrancyGuard{
     uint public winnerTime;
 
     // Time offset to let owner reveal price
-    uint public timeOffset = 5 seconds;
+    uint public timeOffset = 2 minutes;
 
     // States of the auction
     enum AUCTION_STATE{
