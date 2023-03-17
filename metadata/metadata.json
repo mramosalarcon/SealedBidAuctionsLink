@@ -1,9 +1,9 @@
 {
-    "name": "Test NFT",
-    "description": "NFT for auction testing",
-    "image": "https://ipfs.io/ipfs/QmdS7gZXQHoePE9rE7rin5Ph6aGEhChUYMnbQyUBS65EwK",
+    "name": "NFP",
+    "description": "Non-Fungible Person",
+    "image": "https://ipfs.io/ipfs/QmTKDjEjurMkQYS2UxRYzDp1PxA3BQMnCv9wAUkxVoDyhF",
     "attributes": [{
-        "trait_type": "Coolness",
+        "trait_type": "Uniqueness",
         "value": 100
     }]
 }
