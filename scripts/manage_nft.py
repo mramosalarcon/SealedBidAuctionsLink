@@ -72,4 +72,8 @@ def last_nft():
 
 
 def main():
-    deploy_and_create_nft()
+    # deploy_and_create_nft()
+    token_contract = CollectibleCreator.at(
+        "0x7b4Bf48b219765392A839D6a47178A3633d412a0"
+    )  # use the address where the contract is deployed
+    CollectibleCreator.publish_source(token_contract)

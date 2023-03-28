@@ -13,7 +13,7 @@ contract CollectibleCreator is ERC721 {
     }
 
     function createCollectible() public returns (uint256) {
-        require(tokenCounter + 1 < 1000);
+        require(tokenCounter + 1 < 101);
         uint256 newTokenId = tokenCounter;
         _safeMint(msg.sender, newTokenId);
         //_setTokenURI(newTokenId, tokenURI);

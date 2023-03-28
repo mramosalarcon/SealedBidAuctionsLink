@@ -54,7 +54,7 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
     uint256 public winnerTime;
 
     // Time offset to let owner reveal price
-    uint256 public timeOffset = 5 minutes;
+    uint256 public timeOffset = 60 minutes;
 
     // States of the auction
     enum AUCTION_STATE {
@@ -228,10 +228,10 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {OfferRevealed} event.
      */
-    function revealOffer(string memory _secret, uint256 _amount)
-        public
-        virtual
-    {
+    function revealOffer(
+        string memory _secret,
+        uint256 _amount
+    ) public virtual {
         require(auction_state == AUCTION_STATE.OFFER_REVEAL, "Not right time");
         require(
             accountToAmount[_msgSender()] != 0,
@@ -260,10 +260,10 @@ contract SealedBidAuction is Ownable, ReentrancyGuard {
      *
      * Emits a {MinimumPriceRevealed} event.
      */
-    function winnerCalculation(string memory _secret, uint256 _amount)
-        public
-        onlyOwner
-    {
+    function winnerCalculation(
+        string memory _secret,
+        uint256 _amount
+    ) public onlyOwner {
         require(
             auction_state == AUCTION_STATE.OFFER_REVEAL,
             "Wrong auction state"

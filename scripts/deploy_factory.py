@@ -14,7 +14,7 @@ N = 10
 """
 
 
-def deploy_factory(min_price=Web3.toWei(0.1, "ether"), secret="thisIsASecret"):
+def deploy_factory():
     account = get_account(index=0)
     factory = AuctionFactory.deploy(
         {"from": account},
