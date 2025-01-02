@@ -12,7 +12,7 @@ from scripts.manage_nft import last_nft
 import pytest
 import time
 
-MIN_PRICE = Web3.toWei(0.001, "ether")
+MIN_PRICE = Web3.to_wei(0.001, "ether")
 SECRET = "thisIsASecret"
 
 
@@ -22,9 +22,9 @@ def test_integration():
     accounts = [get_account(number=0), get_account(number=1), get_account(number=2)]
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.01, "ether"),
-        Web3.toWei(0.11, "ether"),
-        Web3.toWei(0.12, "ether"),
+        Web3.to_wei(0.01, "ether"),
+        Web3.to_wei(0.11, "ether"),
+        Web3.to_wei(0.12, "ether"),
     ]
     initial_balances = [
         accounts[0].balance(),
@@ -76,9 +76,9 @@ def test_integration_local():
     accounts = [get_account(), get_account(index=1), get_account(index=2)]
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.01, "ether"),
-        Web3.toWei(0.11, "ether"),
-        Web3.toWei(0.12, "ether"),
+        Web3.to_wei(0.01, "ether"),
+        Web3.to_wei(0.11, "ether"),
+        Web3.to_wei(0.12, "ether"),
     ]
     initial_balances = [
         accounts[0].balance(),
@@ -132,9 +132,9 @@ def test_integration_local_times_owner_change():
     time1 = time_now()
     time2 = time1 + 10
     prices = [
-        Web3.toWei(0.01, "ether"),
-        Web3.toWei(0.11, "ether"),
-        Web3.toWei(0.12, "ether"),
+        Web3.to_wei(0.01, "ether"),
+        Web3.to_wei(0.11, "ether"),
+        Web3.to_wei(0.12, "ether"),
     ]
     initial_balances = [
         accounts[0].balance(),
@@ -192,9 +192,9 @@ def test_integration_local_times_other_change():
     time1 = time_now()
     time2 = time1 + 10
     prices = [
-        Web3.toWei(0.01, "ether"),
-        Web3.toWei(0.11, "ether"),
-        Web3.toWei(0.12, "ether"),
+        Web3.to_wei(0.01, "ether"),
+        Web3.to_wei(0.11, "ether"),
+        Web3.to_wei(0.12, "ether"),
     ]
     initial_balances = [
         accounts[0].balance(),

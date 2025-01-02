@@ -41,7 +41,7 @@ def deploy_factory():
 
 
 def deploy_auction_from_factory(
-    min_price=Web3.toWei(0.001, "ether"), secret="thisIsASecret", time1=None, time2=None
+    min_price=Web3.to_wei(0.001, "ether"), secret="thisIsASecret", time1=None, time2=None
 ):
     account = get_account()
     initialHash = hashStrings(secret, min_price)
@@ -90,7 +90,7 @@ def deploy_auction_from_factory(
 
 
 def deploy_n_auctions_from_factory(
-    min_price=Web3.toWei(0.1, "ether"), secret="thisIsASecret", time1=None, time2=None
+    min_price=Web3.to_wei(0.1, "ether"), secret="thisIsASecret", time1=None, time2=None
 ):
     deploy_factory()
     deploy_auction_from_factory(time1=time_now(), time2=time_now() + 3600 * 12)

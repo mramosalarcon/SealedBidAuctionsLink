@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
+import "../node_modules/@chainlink/contracts/src/v0.8/automation/KeeperCompatible.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./SealedBidAuction.sol";

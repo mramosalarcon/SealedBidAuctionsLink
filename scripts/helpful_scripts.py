@@ -54,7 +54,7 @@ def get_account(index=None, id=None, number=None):
 
 
 def hashStrings(s1, s2):
-    ans = Web3.solidityKeccak(["bytes32", "uint256"], [bytes(s1, "utf-8"), int(s2)])
+    ans = Web3.solidity_keccak(["bytes32", "uint256"], [bytes(s1, "utf-8"), int(s2)])
     return ans
 
 
@@ -71,15 +71,15 @@ def time_now():
 
 
 def main():
-    print(hashStrings("secreto", Web3.toWei(1.23, "ether")).hex())
+    print(hashStrings("secreto", Web3.to_wei(1.23, "ether")).hex())
 
 
-# price = Web3.toWei(0.16, 'ether')
+# price = Web3.to_wei(0.16, 'ether')
 # secret = 'Secret1'
 # ans = hashStrings(secret,price)
 # print(ans)
 # print(Web3.toBytes(text=secret))
 # print(price)
 # ans = hashStrings(secret,price)
-# ans = Web3.solidityKeccak(['bytes32','uint256'],[bytes('Secret1','utf-8'), 160000000000000000])
+# ans = Web3.solidity_keccak(['bytes32','uint256'],[bytes('Secret1','utf-8'), 160000000000000000])
 # print(ans.hex())
