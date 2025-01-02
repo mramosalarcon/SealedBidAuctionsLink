@@ -19,7 +19,7 @@ from scripts.manage_nft import deploy_and_create_nft, last_nft
 
 
 def deploy_auction(
-    min_price=Web3.toWei(0.001, "ether"), secret="thisIsASecret", time=None, time2=None
+    min_price=Web3.to_wei(0.001, "ether"), secret="thisIsASecret", time=None, time2=None
 ):
     account = get_account(index=0)
     initialHash = hashStrings(secret, min_price)
@@ -59,7 +59,7 @@ def deploy_auction(
 
 
 def deploy_auction_last_nft(
-    min_price=Web3.toWei(0.001, "ether"), secret="thisIsASecret", time=None, time2=None
+    min_price=Web3.to_wei(0.001, "ether"), secret="thisIsASecret", time=None, time2=None
 ):
     account = get_account(index=0)
     initialHash = hashStrings(secret, min_price)

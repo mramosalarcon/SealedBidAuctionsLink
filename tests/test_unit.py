@@ -12,7 +12,7 @@ from scripts.deploy_factory import deploy_factory, deploy_auction_from_factory
 import pytest
 import time
 
-MIN_PRICE = Web3.toWei(0.001, "ether")
+MIN_PRICE = Web3.to_wei(0.001, "ether")
 SECRET = "thisIsASecret"
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
@@ -52,7 +52,7 @@ def test_owner_cant_participate():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip()
     account = get_account()
-    price = Web3.toWei(0.15, "ether")
+    price = Web3.to_wei(0.15, "ether")
     secret = "Secret1"
     auction, hash = deploy_auction(MIN_PRICE, SECRET)
     with pytest.raises(exceptions.VirtualMachineError):
@@ -68,7 +68,7 @@ def test_min_amount_transfer():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip()
     account = get_account(index=1)
-    price = Web3.toWei(0, "ether")
+    price = Web3.to_wei(0, "ether")
     secret = "Secret1"
     auction, hash = deploy_auction(MIN_PRICE, SECRET)
     with pytest.raises(exceptions.VirtualMachineError):
@@ -85,7 +85,7 @@ def test_make_offer():
         pytest.skip()
     account = get_account(index=1)
     auction, hash = deploy_auction(MIN_PRICE, SECRET)
-    price = Web3.toWei(0.16, "ether")
+    price = Web3.to_wei(0.16, "ether")
     secret = "Secret1"
     tx = auction.makeOffer(
         hashStrings(secret, price), {"from": account, "value": price}
@@ -105,14 +105,14 @@ def test_no_double_bids():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip()
     account = get_account(index=1)
-    price = Web3.toWei(0.15, "ether")
+    price = Web3.to_wei(0.15, "ether")
     secret = "Secret1"
     auction, hash = deploy_auction(MIN_PRICE, SECRET)
     tx = auction.makeOffer(
         hashStrings(secret, price), {"from": account, "value": price}
     )
     tx.wait(1)
-    price = Web3.toWei(0.13, "ether")
+    price = Web3.to_wei(0.13, "ether")
     secret = "Secret2"
     with pytest.raises(exceptions.VirtualMachineError):
         auction.makeOffer(hashStrings(secret, price), {"from": account, "value": price})
@@ -160,7 +160,7 @@ def test_reveal_offer_wrong_time():
         pytest.skip()
     account = get_account(index=1)
     auction, hash = deploy_auction()
-    price = Web3.toWei(0.16, "ether")
+    price = Web3.to_wei(0.16, "ether")
     secret = "Secret1"
     tx = auction.makeOffer(
         hashStrings(secret, price), {"from": account, "value": price}
@@ -185,7 +185,7 @@ def test_reveal_offer_not_participant():
     tx = auction.nextPhase({"from": get_account()})
     with pytest.raises(exceptions.VirtualMachineError):
         tx = auction.revealOffer(
-            bytes("secret", "utf-8"), Web3.toWei(0.16, "ether"), {"from": account}
+            bytes("secret", "utf-8"), Web3.to_wei(0.16, "ether"), {"from": account}
         )
         tx.wait(1)
 
@@ -201,7 +201,7 @@ def test_encoding_matches():
         pytest.skip()
     account = get_account(index=1)
     auction, hash = deploy_auction()
-    price = Web3.toWei(0.16, "ether")
+    price = Web3.to_wei(0.16, "ether")
     secret = "Secret1"
     tx = auction.makeOffer(
         hashStrings(secret, price), {"from": account, "value": price}
@@ -225,7 +225,7 @@ def test_cant_reveal_twice():
         pytest.skip()
     account = get_account(index=1)
     auction, hash = deploy_auction()
-    price = Web3.toWei(0.16, "ether")
+    price = Web3.to_wei(0.16, "ether")
     secret = "Secret1"
     tx = auction.makeOffer(
         hashStrings(secret, price), {"from": account, "value": price}
@@ -252,9 +252,9 @@ def test_no_winner():
     auction, hash = deploy_auction()
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.00001, "ether"),
-        Web3.toWei(0.00004, "ether"),
-        Web3.toWei(0.00005, "ether"),
+        Web3.to_wei(0.00001, "ether"),
+        Web3.to_wei(0.00004, "ether"),
+        Web3.to_wei(0.00005, "ether"),
     ]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]), {"from": accounts[0], "value": prices[0]}
@@ -314,9 +314,9 @@ right way.
 def test_deposit_back():
     auction, accounts, prices = test_no_winner()
     prices = [
-        Web3.toWei(0.00001, "ether"),
-        Web3.toWei(0.00004, "ether"),
-        Web3.toWei(0.00005, "ether"),
+        Web3.to_wei(0.00001, "ether"),
+        Web3.to_wei(0.00004, "ether"),
+        Web3.to_wei(0.00005, "ether"),
     ]
     initialBalance = accounts[0].balance()
     tx = auction.reimburseParticipant({"from": accounts[0]})
@@ -336,9 +336,9 @@ def test_chooses_winner_correctly():
     auction, hash = deploy_auction()
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.16, "ether"),
-        Web3.toWei(0.50, "ether"),
-        Web3.toWei(0.21, "ether"),
+        Web3.to_wei(0.16, "ether"),
+        Web3.to_wei(0.50, "ether"),
+        Web3.to_wei(0.21, "ether"),
     ]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]), {"from": accounts[0], "value": prices[0]}
@@ -382,9 +382,9 @@ def test_chooses_winner_correctly_no_reveals():
     auction, hash = deploy_auction()
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.16, "ether"),
-        Web3.toWei(0.50, "ether"),
-        Web3.toWei(0.21, "ether"),
+        Web3.to_wei(0.16, "ether"),
+        Web3.to_wei(0.50, "ether"),
+        Web3.to_wei(0.21, "ether"),
     ]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]), {"from": accounts[0], "value": prices[0]}
@@ -419,9 +419,9 @@ def test_participant_no_reveal():
     auction, hash = deploy_auction()
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.16, "ether"),
-        Web3.toWei(0.50, "ether"),
-        Web3.toWei(0.21, "ether"),
+        Web3.to_wei(0.16, "ether"),
+        Web3.to_wei(0.50, "ether"),
+        Web3.to_wei(0.21, "ether"),
     ]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]), {"from": accounts[0], "value": prices[0]}
@@ -574,10 +574,10 @@ def test_winner_gives_more_than_offered():
     accounts = [get_account(index=1), get_account(index=2)]
     auction, hash = deploy_auction()
     secrets = ["S1", "S2"]
-    prices = [Web3.toWei(0.1, "ether"), Web3.toWei(0.1, "ether")]
+    prices = [Web3.to_wei(0.1, "ether"), Web3.to_wei(0.1, "ether")]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]),
-        {"from": accounts[0], "value": Web3.toWei(0.5, "ether")},
+        {"from": accounts[0], "value": Web3.to_wei(0.5, "ether")},
     )
     tx.wait(1)
     tx = auction.nextPhase({"from": get_account()})
@@ -590,13 +590,13 @@ def test_winner_gives_more_than_offered():
     # tx.wait(1)
     contract_balance = auction.balance()
     participant_balance = accounts[0].balance()
-    assert auction.accountToAmount(accounts[0]) == Web3.toWei(0.4, "ether")
+    assert auction.accountToAmount(accounts[0]) == Web3.to_wei(0.4, "ether")
     tx = auction.reimburseParticipant({"from": accounts[0]})
     tx.wait(1)
-    assert contract_balance - auction.accountToOffer(accounts[0]) == Web3.toWei(
+    assert contract_balance - auction.accountToOffer(accounts[0]) == Web3.to_wei(
         0.4, "ether"
     )
-    assert participant_balance + Web3.toWei(0.4, "ether") == accounts[0].balance()
+    assert participant_balance + Web3.to_wei(0.4, "ether") == accounts[0].balance()
     assert auction.accountToAmount(accounts[0]) == 0
     with pytest.raises(exceptions.VirtualMachineError):
         tx = auction.reimburseParticipant({"from": accounts[0]})
@@ -880,10 +880,10 @@ def test_winner_with_colse_by_owner():
     time2 = time1 + 10
     auction, hash = deploy_auction(MIN_PRICE, SECRET, time1, time2)
     secrets = ["S1", "S2"]
-    prices = [Web3.toWei(0.1, "ether"), Web3.toWei(0.1, "ether")]
+    prices = [Web3.to_wei(0.1, "ether"), Web3.to_wei(0.1, "ether")]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]),
-        {"from": account2, "value": Web3.toWei(0.1, "ether")},
+        {"from": account2, "value": Web3.to_wei(0.1, "ether")},
     )
     tx.wait(1)
     tx = auction.nextPhase({"from": account2})
@@ -894,7 +894,7 @@ def test_winner_with_colse_by_owner():
     tx = auction.winnerCalculation(SECRET, MIN_PRICE, {"from": account1})
     tx.wait(1)
     assert auction.winner() == account2
-    assert auction.amount() == Web3.toWei(0.1, "ether")
+    assert auction.amount() == Web3.to_wei(0.1, "ether")
     assert auction.minimumPrice() != 0
 
 
@@ -913,10 +913,10 @@ def test_winner_with_colse_by_x():
     time2 = time1 + 10
     auction, hash = deploy_auction(MIN_PRICE, SECRET, time1, time2)
     secrets = ["S1", "S2"]
-    prices = [Web3.toWei(0.1, "ether"), Web3.toWei(0.1, "ether")]
+    prices = [Web3.to_wei(0.1, "ether"), Web3.to_wei(0.1, "ether")]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]),
-        {"from": account2, "value": Web3.toWei(0.1, "ether")},
+        {"from": account2, "value": Web3.to_wei(0.1, "ether")},
     )
     tx.wait(1)
     tx = auction.nextPhase({"from": account2})
@@ -927,7 +927,7 @@ def test_winner_with_colse_by_x():
     tx = auction.nextPhase({"from": account2})
     tx.wait(1)
     assert auction.winner() == account2
-    assert auction.amount() == Web3.toWei(0.1, "ether")
+    assert auction.amount() == Web3.to_wei(0.1, "ether")
     assert auction.minimumPrice() == 0
 
 
@@ -947,10 +947,10 @@ def test_winner_with_colse_by_owner_bad_min_price():
     time2 = time1 + 10
     auction, hash = deploy_auction(MIN_PRICE, SECRET, time1, time2)
     secrets = ["S1", "S2"]
-    prices = [Web3.toWei(0.00009, "ether"), Web3.toWei(0.00009, "ether")]
+    prices = [Web3.to_wei(0.00009, "ether"), Web3.to_wei(0.00009, "ether")]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]),
-        {"from": account2, "value": Web3.toWei(0.3, "ether")},
+        {"from": account2, "value": Web3.to_wei(0.3, "ether")},
     )
     tx.wait(1)
     tx = auction.nextPhase({"from": account2})
@@ -979,10 +979,10 @@ def test_winner_with_colse_by_x_bad_min_price():
     time2 = time1 + 10
     auction, hash = deploy_auction(MIN_PRICE, SECRET, time1, time2)
     secrets = ["S1", "S2"]
-    prices = [Web3.toWei(0.09, "ether"), Web3.toWei(0.09, "ether")]
+    prices = [Web3.to_wei(0.09, "ether"), Web3.to_wei(0.09, "ether")]
     tx = auction.makeOffer(
         hashStrings(secrets[0], prices[0]),
-        {"from": account2, "value": Web3.toWei(0.2, "ether")},
+        {"from": account2, "value": Web3.to_wei(0.2, "ether")},
     )
     tx.wait(1)
     tx = auction.nextPhase({"from": account2})
@@ -1024,9 +1024,9 @@ def test_factory_gets_comission():
     accounts = [get_account(), get_account(index=1), get_account(index=2)]
     secrets = ["S1", "S2", "S3"]
     prices = [
-        Web3.toWei(0.01, "ether"),
-        Web3.toWei(0.11, "ether"),
-        Web3.toWei(0.12, "ether"),
+        Web3.to_wei(0.01, "ether"),
+        Web3.to_wei(0.11, "ether"),
+        Web3.to_wei(0.12, "ether"),
     ]
     initial_balances = [
         accounts[0].balance(),
@@ -1057,7 +1057,7 @@ def test_factory_gets_comission():
     tx = auction.ownerGetsPayed({"from": accounts[0]})
     tx.wait(0)
     assert factory.balance() > 0
-    assert initial_balances[0] + Web3.toWei(0.12, "ether") > accounts[0].balance()
+    assert initial_balances[0] + Web3.to_wei(0.12, "ether") > accounts[0].balance()
     return factory
 
 
